@@ -296,6 +296,3 @@ export async function createEmbedder(config: EmbeddingConfig): Promise<Embedder>
   return embedder;
 }
 
-export async function getVectorDimensions(model: string, overrideDims?: number): Promise<number> {
-  return Promise.resolve(getVectorDimensions(model, overrideDims));
-}

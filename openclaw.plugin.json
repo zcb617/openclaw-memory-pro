@@ -1,5 +1,5 @@
 {
-  "id": "memory-lancedb-pro",
+  "id": "openclaw-memory-pro",
   "name": "Memory (LanceDB Pro)",
   "description": "Enhanced LanceDB-backed long-term memory with hybrid retrieval, multi-scope isolation, and management CLI",
   "version": "2026.2.16",
@@ -118,7 +118,11 @@
           },
           "rerankProvider": {
             "type": "string",
-            "enum": ["jina", "siliconflow", "pinecone"],
+            "enum": [
+              "jina",
+              "siliconflow",
+              "pinecone"
+            ],
             "default": "jina",
             "description": "Reranker provider format. Determines request/response shape and auth header."
           },
@@ -167,6 +171,11 @@
             "maximum": 365,
             "default": 60,
             "description": "Time decay half-life in days. Old entries lose score gradually. Floor at 0.5x. Set 0 to disable."
+          },
+          "dynamicWeights": {
+            "type": "boolean",
+            "description": "Enable dynamic RRF weight adjustment based on query type",
+            "default": true
           }
         }
       },
