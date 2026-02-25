@@ -365,3 +365,71 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 **Made with ❤️ by zcb617**
+
+---
+
+## ⚙️ Configuration Notes
+
+### Important: No `agents.memorySearch` Required!
+
+When using `openclaw-memory-pro`, you **do NOT need** to configure `agents.memorySearch` in your `openclaw.json`. The plugin manages its own embedding and retrieval configuration.
+
+**❌ Remove this (old built-in memory system):**
+```json5
+{
+  "agents": {
+    "defaults": {
+      "memorySearch": {
+        "provider": "openai",
+        "remote": { "baseUrl": "http://localhost:19000" },
+        "model": "nomic-embed-text"
+      }
+    }
+  }
+}
+```
+
+**✅ Use this instead (plugin configuration):**
+```json5
+{
+  "plugins": {
+    "slots": {
+      "memory": "openclaw-memory-pro"
+    },
+    "entries": {
+      "openclaw-memory-pro": {
+        "enabled": true,
+        "config": {
+          "embedding": {
+            "provider": "openai-compatible",
+            "apiKey": "ollama",
+            "model": "nomic-embed-text",
+            "baseURL": "http://localhost:19000",
+            "dimensions": 768
+          },
+          "dbPath": "~/.openclaw/memory/lancedb-pro",
+          "autoCapture": true,
+          "autoRecall": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "dynamicWeights": true,
+            "minScore": 0.35,
+            "filterNoise": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Why?
+
+| Component | Old System | openclaw-memory-pro |
+|-----------|-----------|---------------------|
+| **Configuration** | `agents.memorySearch` | `plugins.entries.<id>.config` |
+| **Embedding** | Built-in | Plugin-managed |
+| **Storage** | SQLite | LanceDB-Pro |
+| **Retrieval** | memory-core | Plugin's retriever |
+
+The plugin is self-contained and manages all memory operations independently!
