@@ -1,0 +1,37 @@
+{
+  "name": "openclaw-memory-pro",
+  "version": "1.0.0",
+  "description": "Enhanced LanceDB-backed long-term memory plugin for OpenClaw with hybrid retrieval, multi-scope isolation, and performance optimizations",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "openclaw",
+    "memory",
+    "lancedb",
+    "plugin",
+    "vector-search",
+    "hybrid-retrieval"
+  ],
+  "author": "zcb61",
+  "license": "MIT",
+  "dependencies": {
+    "@lancedb/lancedb": "^0.5.0",
+    "@sinclair/typebox": "^0.32.0",
+    "openai": "^4.20.0",
+    "better-sqlite3": "^9.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/better-sqlite3": "^7.6.9",
+    "typescript": "^5.3.0",
+    "vitest": "^1.3.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0"
+  }
+}
