@@ -360,7 +360,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 📮 Support
 
 - **Issues**: https://github.com/zcb617/openclaw-memory-pro/issues
-- **Discussions**: https://github.com/zcb617/openclaw-memory-pro/discussions
 - **OpenClaw Docs**: https://docs.openclaw.ai
 
 ---

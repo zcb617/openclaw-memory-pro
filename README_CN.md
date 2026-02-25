@@ -16,18 +16,6 @@
 
 ---
 
-## 📺 视频教程
-
-> **观看完整教程 — 涵盖安装、配置，以及混合检索的底层原理。**
-
-[![YouTube Video](https://img.shields.io/badge/YouTube-立即观看-red?style=for-the-badge&logo=youtube)](https://youtu.be/MtukF1C8epQ)
-🔗 **https://youtu.be/MtukF1C8epQ**
-
-[![Bilibili Video](https://img.shields.io/badge/Bilibili-立即观看-00A1D6?style=for-the-badge&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1zUf2BGEgn/)
-🔗 **https://www.bilibili.com/video/BV1zUf2BGEgn/**
-
----
-
 ## 为什么需要这个插件？
 
 OpenClaw 内置的 `memory-lancedb` 插件仅提供基本的向量搜索。**memory-lancedb-pro** 在此基础上进行了全面升级：
@@ -395,12 +383,3 @@ MIT
 
 ---
 
-## Buy Me a Coffee
-
-[!["Buy Me A Coffee"](https://storage.ko-fi.com/cdn/kofi2.png?v=3)](https://ko-fi.com/aila)
-
-## 我的微信群和微信二维码
-
-<img src="https://github.com/win4r/AISuperDomain/assets/42172631/d6dcfd1a-60fa-4b6f-9d5e-1482150a7d95" width="186" height="300">
-<img src="https://github.com/win4r/AISuperDomain/assets/42172631/7568cf78-c8ba-4182-aa96-d524d903f2bc" width="214.8" height="291">
-<img src="https://github.com/win4r/AISuperDomain/assets/42172631/fefe535c-8153-4046-bfb4-e65eacbf7a33" width="207" height="281">
