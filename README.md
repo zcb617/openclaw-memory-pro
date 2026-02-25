@@ -4,6 +4,9 @@
 
 Hybrid Retrieval (Vector + BM25) · Cross-Encoder Rerank · Multi-Scope Isolation · Performance Monitoring · Persistent Cache · Security Hardening
 
+[![GitHub Stars](https://img.shields.io/github/stars/zcb617/openclaw-memory-pro?style=flat-square)](https://github.com/zcb617/openclaw-memory-pro/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/zcb617/openclaw-memory-pro?style=flat-square)](https://github.com/zcb617/openclaw-memory-pro/issues)
+[![GitHub Forks](https://img.shields.io/github/forks/zcb617/openclaw-memory-pro?style=flat-square)](https://github.com/zcb617/openclaw-memory-pro/network)
 [![OpenClaw Plugin](https://img.shields.io/badge/OpenClaw-Plugin-blue)](https://github.com/openclaw/openclaw)
 [![LanceDB](https://img.shields.io/badge/LanceDB-Vectorstore-orange)](https://lancedb.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -356,10 +359,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📮 Support
 
-- **Issues**: https://github.com/zcb61/openclaw-memory-pro/issues
-- **Discussions**: https://github.com/zcb61/openclaw-memory-pro/discussions
+- **Issues**: https://github.com/zcb617/openclaw-memory-pro/issues
+- **Discussions**: https://github.com/zcb617/openclaw-memory-pro/discussions
 - **OpenClaw Docs**: https://docs.openclaw.ai
 
 ---
 
-**Made with ❤️ by zcb61**
+**Made with ❤️ by zcb617**
