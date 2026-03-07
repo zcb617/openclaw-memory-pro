@@ -262,7 +262,7 @@ const memoryLanceDBProPlugin = {
   description: "Enhanced LanceDB-backed long-term memory with hybrid retrieval, multi-scope isolation, and management CLI",
   kind: "memory" as const,
 
-  register(api: OpenClawPluginApi) {
+  async register(api: OpenClawPluginApi) {
     // Parse and validate configuration
     const config = parsePluginConfig(api.pluginConfig);
 
@@ -274,7 +274,7 @@ const memoryLanceDBProPlugin = {
 
     // Initialize core components
     const store = new MemoryStore({ dbPath: resolvedDbPath, vectorDim });
-    const embedder = createEmbedder({
+    const embedder = await createEmbedder({
       provider: "openai-compatible",
       apiKey: resolveEnvVars(config.embedding.apiKey),
       model: config.embedding.model || "text-embedding-3-small",

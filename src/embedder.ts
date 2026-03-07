@@ -340,6 +340,31 @@ export class Embedder {
     }
     this.logger.info('Embedder', 'Embedder destroyed');
   }
+
+  // ============================================================================
+  // Health Check / Test Method
+  // ============================================================================
+
+  async test(): Promise<{
+    success: boolean;
+    error?: string;
+    model: string;
+  }> {
+    try {
+      // Test with a simple embedding call
+      await this.embedQuery('test');
+      return {
+        success: true,
+        model: this.config.model,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        model: this.config.model,
+      };
+    }
+  }
 }
 
 // ============================================================================
