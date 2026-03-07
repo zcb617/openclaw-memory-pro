@@ -193,7 +193,13 @@ export class Embedder {
       const request: any = {
         model: this.config.model,
         input: text,
+        encoding_format: 'float',  // Explicitly request float encoding for correct dimensions
       };
+
+      // Add dimensions if specified (important for models that support variable dimensions)
+      if (this.config.dimensions && this.config.dimensions > 0) {
+        request.dimensions = this.config.dimensions;
+      }
 
       // Add task type for providers that support it (e.g., Jina v5)
       if (task && this.config.model.includes('jina')) {

@@ -288,7 +288,7 @@ export class MemoryStore {
           category: row.category as MemoryEntry["category"],
           scope: rowScope,
           importance: row.importance as number,
-          timestamp: row.timestamp as number,
+          timestamp: (row.timestamp as number) || (row.createdAt as number) || Date.now(),
           metadata: (row.metadata as string) || "{}",
         },
         score,
@@ -345,7 +345,7 @@ export class MemoryStore {
             category: row.category as MemoryEntry["category"],
             scope: rowScope,
             importance: row.importance as number,
-            timestamp: row.timestamp as number,
+            timestamp: (row.timestamp as number) || (row.createdAt as number) || Date.now(),
             metadata: (row.metadata as string) || "{}",
           },
           score: normalizedScore,
@@ -433,7 +433,7 @@ export class MemoryStore {
         category: row.category as MemoryEntry["category"],
         scope: (row.scope as string | undefined) ?? "global",
         importance: row.importance as number,
-        timestamp: (row.timestamp as number) || 0,
+        timestamp: (row.timestamp as number) || (row.createdAt as number) || 0,
         metadata: (row.metadata as string) || "{}",
       }))
       .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
@@ -524,7 +524,7 @@ export class MemoryStore {
       category: updates.category ?? (row.category as MemoryEntry["category"]),
       scope: rowScope,
       importance: updates.importance ?? (row.importance as number),
-      timestamp: row.timestamp as number, // preserve original
+      timestamp: (row.timestamp as number) || (row.createdAt as number) || Date.now(), // preserve original
       metadata: updates.metadata ?? ((row.metadata as string) || "{}"),
     };
 
