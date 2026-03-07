@@ -182,12 +182,11 @@ export class MemoryRetriever {
         queryVector,
         this.config.candidatePoolSize,
         this.config.minScore,
-        scopeFilter,
-        category
+        scopeFilter
       );
 
       const bm25Results = this.config.mode === 'hybrid'
-        ? await this.store.bm25Search(query, this.config.candidatePoolSize, scopeFilter, category)
+        ? await this.store.bm25Search(query, this.config.candidatePoolSize, scopeFilter)
         : [];
 
       this.logger.debug('MemoryRetriever', 'Search completed', {
@@ -387,7 +386,7 @@ export class MemoryRetriever {
           };
       }
 
-      const response = await fetch(this.config.rerankEndpoint, {
+      const response = await fetch(this.config.rerankEndpoint || 'https://api.jina.ai/v1/rerank', {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
@@ -501,6 +500,38 @@ export class MemoryRetriever {
     }
 
     return results;
+  }
+
+  // ============================================================================
+  // Health Check / Test Method
+  // ============================================================================
+
+  async test(): Promise<{
+    success: boolean;
+    error?: string;
+    mode: string;
+    hasFtsSupport: boolean;
+  }> {
+    try {
+      // Test with a simple query
+      const results = await this.retrieve({
+        query: 'test',
+        limit: 1,
+      });
+
+      return {
+        success: true,
+        mode: this.config.mode,
+        hasFtsSupport: this.store.hasFtsSupport,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        mode: this.config.mode,
+        hasFtsSupport: this.store.hasFtsSupport,
+      };
+    }
   }
 }
 

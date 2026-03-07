@@ -42,19 +42,19 @@ const EMBEDDING_DIMENSIONS: Record<string, number> = {
   'text-embedding-3-small': 1536,
   'text-embedding-3-large': 3072,
   'text-embedding-004': 768,
-  
+
   // Google Gemini
   'gemini-embedding-001': 3072,
-  
+
   // Ollama / Local
   'nomic-embed-text': 768,
   'mxbai-embed-large': 1024,
-  
+
   // BAAI
   'BAAI/bge-m3': 1024,
   'all-MiniLM-L6-v2': 384,
   'all-mpnet-base-v2': 768,
-  
+
   // Jina v5 (recommended for this plugin)
   'jina-embeddings-v5-text-small': 1024,
   'jina-embeddings-v5-text-nano': 768,
@@ -92,7 +92,7 @@ export class Embedder {
 
   constructor(config: EmbeddingConfig) {
     this.config = config;
-    
+
     // Security: Validate and resolve environment variables with whitelist
     const apiKey = resolveEnvVars(config.apiKey, { strict: false });
     const baseURL = config.baseURL ? resolveEnvVars(config.baseURL, { strict: false }) : undefined;
@@ -127,17 +127,17 @@ export class Embedder {
 
   async embedQuery(text: string): Promise<number[]> {
     const timerId = this.logger.perfStart('Embedder', 'embedQuery');
-    
+
     try {
       const task = this.config.taskQuery;
       const vector = await this.getEmbedding(text, task);
-      
+
       const duration = this.logger.perfEnd(timerId);
-      this.logger.debug('Embedder', `Query embedded in ${duration.toFixed(2)}ms`, { 
-        textLength: text.length, 
-        vectorDim: vector.length 
+      this.logger.debug('Embedder', `Query embedded in ${duration.toFixed(2)}ms`, {
+        textLength: text.length,
+        vectorDim: vector.length
       });
-      
+
       return vector;
     } catch (error) {
       this.logger.perfEnd(timerId);
@@ -148,17 +148,17 @@ export class Embedder {
 
   async embedPassage(text: string): Promise<number[]> {
     const timerId = this.logger.perfStart('Embedder', 'embedPassage');
-    
+
     try {
       const task = this.config.taskPassage;
       const vector = await this.getEmbedding(text, task);
-      
+
       const duration = this.logger.perfEnd(timerId);
-      this.logger.debug('Embedder', `Passage embedded in ${duration.toFixed(2)}ms`, { 
-        textLength: text.length, 
-        vectorDim: vector.length 
+      this.logger.debug('Embedder', `Passage embedded in ${duration.toFixed(2)}ms`, {
+        textLength: text.length,
+        vectorDim: vector.length
       });
-      
+
       return vector;
     } catch (error) {
       this.logger.perfEnd(timerId);
@@ -173,7 +173,7 @@ export class Embedder {
 
   private async getEmbedding(text: string, task?: string): Promise<number[]> {
     const cacheKey = `${task || ''}:${text}`;
-    
+
     // Try cache first
     if (this.cache) {
       const cachedVector = this.cache.get(text, task);
@@ -187,7 +187,7 @@ export class Embedder {
 
     // Cache miss - call API
     const timerId = this.logger.perfStart('Embedder', 'api-call');
-    
+
     try {
       // Build request with provider-specific parameters
       const request: any = {
@@ -207,7 +207,7 @@ export class Embedder {
 
       const response = await this.client.embeddings.create(request);
       const duration = this.logger.perfEnd(timerId);
-      
+
       if (!response.data || response.data.length === 0) {
         throw new Error('Empty embedding response from API');
       }
@@ -219,10 +219,10 @@ export class Embedder {
         this.cache.set(text, task, vector);
       }
 
-      this.logger.debug('Embedder', 'API call successful', { 
+      this.logger.debug('Embedder', 'API call successful', {
         duration: duration.toFixed(2),
         vectorDim: vector.length,
-        cached: false 
+        cached: false
       });
 
       return vector;
@@ -265,6 +265,65 @@ export class Embedder {
   }
 
   // ============================================================================
+  // Batch Embedding Method
+  // ============================================================================
+
+  async embedBatchPassage(texts: string[]): Promise<number[][]> {
+    const timerId = this.logger.perfStart('Embedder', 'embedBatchPassage');
+
+    try {
+      const task = this.config.taskPassage;
+      const vectors: number[][] = [];
+      const batchSize = 32; // OpenAI API supports up to 2048 batch, but be conservative
+
+      for (let i = 0; i < texts.length; i += batchSize) {
+        const batch = texts.slice(i, i + batchSize);
+
+        // Build request with provider-specific parameters
+        const request: any = {
+          model: this.config.model,
+          input: batch,
+        };
+
+        // Add task type for providers that support it (e.g., Jina v5)
+        if (task && this.config.model.includes('jina')) {
+          request.task = task;
+        }
+
+        // Add normalized flag for providers that support it
+        if (this.config.normalized && this.config.model.includes('jina')) {
+          request.normalized = this.config.normalized;
+        }
+
+        const response = await this.client.embeddings.create(request);
+
+        if (!response.data || response.data.length === 0) {
+          throw new Error('Empty embedding response from API');
+        }
+
+        for (let j = 0; j < response.data.length; j++) {
+          const vector = response.data[j].embedding;
+          vectors.push(vector);
+
+          // Cache each result
+          if (this.cache) {
+            this.cache.set(batch[j], task, vector);
+          }
+        }
+      }
+
+      const duration = this.logger.perfEnd(timerId);
+      this.logger.debug('Embedder', `Batch embedded ${texts.length} passages in ${duration.toFixed(2)}ms`);
+
+      return vectors;
+    } catch (error) {
+      this.logger.perfEnd(timerId);
+      this.logger.error('Embedder', 'Failed to batch embed passages', error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
   // Lifecycle
   // ============================================================================
 
@@ -289,10 +348,10 @@ export async function createEmbedder(config: EmbeddingConfig): Promise<Embedder>
   }
 
   const embedder = new Embedder(config);
-  
+
   // Pre-warm cache with common queries (optional optimization)
   // await embedder.warmupCache();
-  
+
   return embedder;
 }
 

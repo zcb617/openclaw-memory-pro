@@ -17,7 +17,8 @@ export interface MemoryEntry {
   scope: string;
   importance: number;
   timestamp: number;
-  metadata?: string; // JSON string for extensible metadata
+  metadata: string; // JSON string for extensible metadata
+  [key: string]: unknown; // Index signature for LanceDB compatibility
 }
 
 export interface MemorySearchResult {
@@ -177,9 +178,19 @@ export class MemoryStore {
       if (!hasFtsIndex) {
         // LanceDB @lancedb/lancedb >=0.26: use Index.fts() config
         const lancedb = await loadLanceDB();
-        await table.createIndex("text", {
-          config: (lancedb as any).Index.fts(),
-        });
+
+        // Check if Index.fts() is available (v0.26+)
+        if ((lancedb as any).Index?.fts) {
+          await table.createIndex("text", {
+            config: (lancedb as any).Index.fts(),
+          });
+        } else {
+          // Fallback for older versions (v0.5.x): try createIndex without config
+          // This may create a basic index but not full-text search capable
+          console.warn("LanceDB version does not support FTS index, skipping FTS setup");
+          this.ftsIndexCreated = false;
+          return;
+        }
       }
     } catch (err) {
       throw new Error(`FTS index creation failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -189,12 +200,11 @@ export class MemoryStore {
   async store(entry: Omit<MemoryEntry, "id" | "timestamp">): Promise<MemoryEntry> {
     await this.ensureInitialized();
 
-    const fullEntry: MemoryEntry = {
-      ...entry,
+    const fullEntry: MemoryEntry = Object.assign(entry as MemoryEntry, {
       id: randomUUID(),
       timestamp: Date.now(),
-      metadata: entry.metadata || "{}",
-    };
+      metadata: entry.metadata ?? "{}",
+    });
 
     await this.table!.add([fullEntry]);
     return fullEntry;
@@ -300,15 +310,16 @@ export class MemoryStore {
     const safeLimit = clampInt(limit, 1, 20);
 
     try {
-      // Use FTS query type explicitly
-      let searchQuery = this.table!.search(query, "fts").limit(safeLimit);
+      // Use FTS search - search with string query returns Promise<VectorQuery>
+      const searchQuery = await this.table!.search(query);
+      searchQuery.limit(safeLimit);
 
       // Apply scope filter if provided
       if (scopeFilter && scopeFilter.length > 0) {
         const scopeConditions = scopeFilter
           .map(scope => `scope = '${escapeSqlLiteral(scope)}'`)
           .join(" OR ");
-        searchQuery = searchQuery.where(`(${scopeConditions}) OR scope IS NULL`);
+        searchQuery.where(`(${scopeConditions}) OR scope IS NULL`);
       }
 
       const results = await searchQuery.toArray();
@@ -411,10 +422,8 @@ export class MemoryStore {
       query = query.where(conditions.join(" AND "));
     }
 
-    // Fetch all matching rows (no pre-limit) so app-layer sort is correct across full dataset
-    const results = await query
-      .select(["id", "text", "category", "scope", "importance", "timestamp", "metadata"])
-      .toArray();
+    // Fetch all matching rows - use selectAll to avoid column existence issues
+    const results = await query.toArray();
 
     return results
       .map((row): MemoryEntry => ({
@@ -424,7 +433,7 @@ export class MemoryStore {
         category: row.category as MemoryEntry["category"],
         scope: (row.scope as string | undefined) ?? "global",
         importance: row.importance as number,
-        timestamp: row.timestamp as number,
+        timestamp: (row.timestamp as number) || 0,
         metadata: (row.metadata as string) || "{}",
       }))
       .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))

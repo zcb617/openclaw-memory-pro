@@ -27,6 +27,7 @@ export interface ScopeManager {
   validateScope(scope: string): boolean;
   getAllScopes(): string[];
   getScopeDefinition(scope: string): ScopeDefinition | undefined;
+  getStats(): { totalScopes: number; agentAccessCount: Record<string, number> };
 }
 
 // ============================================================================
@@ -274,6 +275,15 @@ export class MemoryScopeManager implements ScopeManager {
     if (this.config.agentAccess[agentId]) {
       this.config.agentAccess[agentId] = this.config.agentAccess[agentId].filter(s => s !== scope);
     }
+  }
+
+  getStats(): { totalScopes: number; agentAccessCount: Record<string, number> } {
+    return {
+      totalScopes: Object.keys(this.config.definitions).length,
+      agentAccessCount: Object.fromEntries(
+        Object.entries(this.config.agentAccess).map(([agentId, scopes]) => [agentId, scopes.length])
+      ),
+    };
   }
 }
 

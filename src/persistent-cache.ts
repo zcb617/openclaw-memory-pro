@@ -3,7 +3,8 @@
  * Provides LRU caching with disk persistence across restarts
  */
 
-import Database from 'better-sqlite3';
+import DatabaseConstructor from 'better-sqlite3';
+import type { Database } from 'better-sqlite3';
 import { createHash } from 'node:crypto';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -116,9 +117,9 @@ export class PersistentEmbeddingCache {
     try {
       if (this.config.persistToDisk) {
         const dbPath = this.config.dbPath || getDefaultDbPath();
-        this.db = new Database(dbPath);
-        this.db.pragma('journal_mode = WAL');
-        this.db.pragma('cache_size = -64000'); // 64MB cache
+        this.db = new DatabaseConstructor(dbPath) as unknown as Database;
+        (this.db as any).pragma('journal_mode = WAL');
+        (this.db as any).pragma('cache_size = -64000'); // 64MB cache
         
         this.createTables();
         this.loadFromDisk();
